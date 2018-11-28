@@ -1,3 +1,4 @@
+---
 galaxy_info:
   author: Eric Thiel
   description: Ansible Role to deploy a set of VRFs to Cisco IOS network gear
@@ -36,10 +37,10 @@ galaxy_info:
   # To view available platforms and versions (or releases), visit:
   # https://galaxy.ansible.com/api/v1/platforms/
   #
-  # platforms:
-  # - name: Fedora
-  #   versions:
-  #   - all
+  platforms:
+  - name: IOS
+    versions:
+    - all
   #   - 25
   # - name: SomePlatform
   #   versions:

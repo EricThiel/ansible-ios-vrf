@@ -18,7 +18,7 @@
   when: inventory_hostname | search(item.0[0])
   ios_interface:
     name: "GigabitEthernet0/{{item.0[-1]}}.{{item.1.tenant_num}}"
-    enabled: True
+    enabled: true
 
 - name: Assign interfaces to vlan and vrf
   loop: "{{ links|product(tenants)|list }}"
@@ -42,7 +42,7 @@
   when: inventory_hostname | search(item.0[-1])
   ios_interface:
     name: "GigabitEthernet0/{{item.0[0]}}.{{item.1.tenant_num}}"
-    enabled: True
+    enabled: true
 
 - name: Assign interfaces to vlan
   loop: "{{ links|product(tenants)|list }}"

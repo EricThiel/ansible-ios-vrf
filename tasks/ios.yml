@@ -1,0 +1,63 @@
+---
+
+#############################################################
+# VRF Configuration
+#############################################################
+
+- name: Create VRFs as defined by local_vrfs
+  loop: "{{ tenants }}"
+  ios_vrf:
+    vrfs: "{{ item.tenant_name }}"
+    description: "{{ item.tenant_name }} VRF"
+    rd: "1:{{ item.tenant_num }}"
+    state: present
+
+# Process lower numbered device for each link
+- name: Create subinterfaces
+  loop: "{{ links|product(tenants)|list }}"
+  when: inventory_hostname | search(item.0[0])
+  ios_interface:
+    name: "GigabitEthernet0/{{item.0[-1]}}.{{item.1.tenant_num}}"
+    enabled: True
+
+- name: Assign interfaces to vlan and vrf
+  loop: "{{ links|product(tenants)|list }}"
+  when: inventory_hostname | search(item.0[0])
+  ios_config:
+    lines:
+      - "encapsulation dot1q {{item.1.tenant_num}}{{item.0}}"
+      - "vrf forwarding {{ item.1.tenant_name }}"
+    parents: "interface GigabitEthernet0/{{item.0[-1]}}.{{item.1.tenant_num}}"
+
+- name: Assign IPs to interfaces
+  loop: "{{ links|product(tenants)|list }}"
+  when: inventory_hostname | search(item.0[0])
+  ios_l3_interface:
+    name: "GigabitEthernet0/{{item.0[-1]}}.{{item.1.tenant_num}}"
+    ipv4: "{{ ('10.254.' + item.0 + '.0/24') | ipsubnet(30, item.1.tenant_num) | ipaddr('1') | ipaddr('address') }} {{ ('10.254.' + item.0 + '.0/24') | ipsubnet(30, item.1.tenant_num) | ipaddr('netmask') }}"
+
+
+# Process higher numbered device for each link
+- name: Create subinterfaces
+  loop: "{{ links|product(tenants)|list }}"
+  when: inventory_hostname | search(item.0[-1])
+  ios_interface:
+    name: "GigabitEthernet0/{{item.0[0]}}.{{item.1.tenant_num}}"
+    enabled: True
+
+- name: Assign interfaces to vlan
+  loop: "{{ links|product(tenants)|list }}"
+  when: inventory_hostname | search(item.0[-1])
+  ios_config:
+    lines:
+      - "encapsulation dot1q {{item.1.tenant_num}}{{item.0}}"
+      - "ip vrf forwarding {{ item.1.tenant_name }}"
+    parents: "interface GigabitEthernet0/{{item.0[0]}}.{{item.1.tenant_num}}"
+
+- name: Assign IPs to interfaces
+  loop: "{{ links|product(tenants)|list }}"
+  when: inventory_hostname | search(item.0[-1])
+  ios_l3_interface:
+    name: "GigabitEthernet0/{{item.0[0]}}.{{item.1.tenant_num}}"
+    ipv4: "{{ ('10.254.' + item.0 + '.0/24') | ipsubnet(30, item.1.tenant_num) | ipaddr('2') | ipaddr('address') }} {{ ('10.254.' + item.0 + '.0/24') | ipsubnet(30, item.1.tenant_num) | ipaddr('netmask') }}"
+

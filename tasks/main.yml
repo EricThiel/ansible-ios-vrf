@@ -1,0 +1,6 @@
+---
+# tasks file for ios_vrf
+
+- name: IOS Devices
+  include_tasks: ios.yml
+  when: ansible_network_os == "ios" and tenants is defined

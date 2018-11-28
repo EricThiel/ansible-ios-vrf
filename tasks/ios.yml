@@ -36,7 +36,6 @@
     name: "GigabitEthernet0/{{item.0[-1]}}.{{item.1.tenant_num}}"
     ipv4: "{{ ('10.254.' + item.0 + '.0/24') | ipsubnet(30, item.1.tenant_num) | ipaddr('1') | ipaddr('address') }} {{ ('10.254.' + item.0 + '.0/24') | ipsubnet(30, item.1.tenant_num) | ipaddr('netmask') }}"
 
-
 # Process higher numbered device for each link
 - name: Create subinterfaces
   loop: "{{ links|product(tenants)|list }}"
@@ -60,4 +59,3 @@
   ios_l3_interface:
     name: "GigabitEthernet0/{{item.0[0]}}.{{item.1.tenant_num}}"
     ipv4: "{{ ('10.254.' + item.0 + '.0/24') | ipsubnet(30, item.1.tenant_num) | ipaddr('2') | ipaddr('address') }} {{ ('10.254.' + item.0 + '.0/24') | ipsubnet(30, item.1.tenant_num) | ipaddr('netmask') }}"
-

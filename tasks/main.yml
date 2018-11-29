@@ -4,3 +4,7 @@
 - name: IOS Devices
   include_tasks: ios.yml
   when: ansible_network_os == "ios" and tenants is defined
+
+- name: NXOS Devices
+  include_tasks: nxos.yml
+  when: ansible_network_os == "nxos" and tenants is defined
